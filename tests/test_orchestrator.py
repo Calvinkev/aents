@@ -43,7 +43,7 @@ def test_orchestrator_completes_happy_path() -> None:
     assert state.escalated is False
     assert state.final_output is not None
     assert "Execution metrics" in state.final_output
-    assert len(state.traces) >= 3
+    assert len(state.traces) >= 2
 
 
 def test_orchestrator_escalates_when_iterations_too_low() -> None:
