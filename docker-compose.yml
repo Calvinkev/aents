@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - LLM_PROVIDER=openai
+      - LLM_MODEL=gpt-4o-mini
+      - DATABASE_URL=sqlite+aiosqlite:///./aents.db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+
+  worker:
+    build: .
+    command: python -m src.multi_agent_system.worker
+    environment:
+      - LLM_PROVIDER=openai
+      - LLM_MODEL=gpt-4o-mini
+      - DATABASE_URL=sqlite+aiosqlite:///./aents.db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+      - api
+    volumes:
+      - .:/app
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"

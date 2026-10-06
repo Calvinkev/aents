@@ -1,19 +1,25 @@
-# Multi-Agent AI System for [task]
+# AENTS — Production AI Agent Orchestration Platform
 
-This repository provides a runnable, production-style multi-agent workflow for any `[task]`.
+AENTS is a functional, production-oriented AI-agent orchestration platform. It converts high-level autonomous tasks into structured execution plans (DAGs), routes work to real LLM-powered specialist agents, executes sandboxed tools, validates results, recovers from failures, and persists complete execution traces.
 
-It includes:
-- Clear flow chart and architecture documentation
-- Agent role definitions (inputs, outputs, decision logic)
-- Task routing and confidence-based execution
-- Validation + refinement loops until completion
-- Failure handling (retry, backoff, dead-letter style capture, escalation)
-- Optimization hooks (cost/latency/quality trade-offs)
-- Scalability-ready configuration and worker model
+---
+
+## Key Features
+
+- **LLM Abstraction**: Configurable OpenAI & OpenAI-compatible providers (`gpt-4o`, `gpt-4o-mini`, local models) with token and cost tracking.
+- **Real Specialist Agents**: Research, Coding, Debugging, Security, Data, and General agents executing multi-turn tool loops.
+- **Sandboxed Tool System**: Filesystem (with path traversal security bounds), Shell (command policies), Git, GitHub, HTTP (SSRF protected), and Database query tools.
+- **Human-in-the-Loop (HITL)**: Approval state machine for sensitive write operations.
+- **LLM Planner & Dynamic Router**: Converts tasks into DAGs and routes subtasks based on weighted capability, success rate, latency, cost, and workload metrics.
+- **Multi-Aspect Validation & Refinement**: Automatic structural, rule, and evidence validation with soft-fail prompt refinement loops and hard-fail circuit breakers.
+- **FastAPI REST API & SSE Events**: Production API with real-time Server-Sent Events (SSE) and worker queue dispatch.
+- **Web Dashboard Control Center**: Real-time monitoring UI at `/dashboard`.
+
+---
 
 ## Quick Start
 
-## 1) Create and activate a virtual environment
+### 1) Installation
 
 ```bash
 python3 -m venv .venv
@@ -21,52 +27,74 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 2) Run the system
+### 2) Configuration
+
+Copy `.env.example` to `.env` and set your API keys:
 
 ```bash
-python -m src.multi_agent_system.main --task "Analyze quarterly support tickets and produce root-cause report"
+cp .env.example .env
 ```
 
-### Run with your own task and actually see output
+### 3) CLI Execution
 
-Use any task string you want:
+Run an autonomous task with CLI:
 
 ```bash
-python -m src.multi_agent_system.main --task "YOUR TASK HERE"
+python -m src.multi_agent_system.main run "Analyze repository and identify security issues" --show-trace
 ```
 
-Show full execution details (routing, validation, retries, decisions):
+Output as machine-readable JSON:
 
 ```bash
-python -m src.multi_agent_system.main --task "YOUR TASK HERE" --show-trace
+python -m src.multi_agent_system.main run "Analyze quarterly support tickets" --json
 ```
 
-Save output to a file so you can inspect it later:
+List registered agents and tools:
 
 ```bash
-python -m src.multi_agent_system.main --task "YOUR TASK HERE" --show-trace | tee run_output.txt
+python -m src.multi_agent_system.main agents
+python -m src.multi_agent_system.main tools
 ```
 
-In the output, check these sections:
-- `=== FINAL OUTPUT ===` final assembled response
-- `=== STATUS ===` completion vs escalation and iteration count
-- `=== TRACE ===` step-by-step task routing and validation results
-
-## 3) Run tests
+### 4) Run REST API Server & Control Center Dashboard
 
 ```bash
-pytest -q
+uvicorn src.multi_agent_system.api.app:app --host 0.0.0.0 --port 8000
 ```
 
-## Project Structure
+Open Dashboard in browser: `http://localhost:8000/dashboard`
 
-- `src/multi_agent_system/` core runtime
-- `config/system_config.yaml` runtime config, thresholds, retry policy
-- `docs/architecture.md` design details and flow chart
-- `tests/` validation of orchestration behavior
+---
 
-## Notes
+## Docker Deployment
 
-- Replace `[task]` at runtime via CLI argument.
-- The example specialists are deterministic simulation agents to demonstrate control flow.
-- Integrate real LLM/tool calls by replacing `execute()` methods in specialist agents.
+Launch full stack with API, Worker Queue, and Redis:
+
+```bash
+docker-compose up -d --build
+```
+
+---
+
+## Running Tests
+
+Run complete test suite:
+
+```bash
+pytest tests/ -v
+```
+
+---
+
+## Documentation
+
+Detailed documentation is available in `docs/`:
+- `docs/architecture.md`
+- `docs/agents.md`
+- `docs/tools.md`
+- `docs/security.md`
+- `docs/api.md`
+- `docs/deployment.md`
+- `docs/observability.md`
+- `docs/memory.md`
+- `docs/development.md`

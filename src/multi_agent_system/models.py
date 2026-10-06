@@ -18,6 +18,8 @@ class Subtask:
     objective: str
     acceptance_criteria: List[str]
     priority: int = 1
+    dependencies: List[str] = field(default_factory=list)
+    required_capabilities: List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -49,6 +51,8 @@ class RouteDecision:
 @dataclass
 class TaskState:
     task: str
+    task_id: str = ""
+    run_id: str = ""
     iteration: int = 0
     completed: bool = False
     escalated: bool = False
